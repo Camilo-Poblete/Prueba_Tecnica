@@ -1,25 +1,16 @@
-# Usar una imagen base de Python
-FROM python:3.12-slim
+# Usa la imagen base de Python
+FROM python:3.12
 
-# Establecer el directorio de trabajo en el contenedor
-WORKDIR /app
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /usr/src/app
 
-# Instalar las dependencias del sistema necesarias para psycopg2
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    gcc \
-    --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copiar el archivo de requisitos
-COPY requirements.txt .
-
-# Instalar las dependencias de Python especificadas en requirements.txt
+# Copia el archivo de requerimientos e instala las dependencias
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto del código de la aplicación
+# Copia el resto de la aplicación al directorio de trabajo
 COPY . .
 
-# Especificar el comando por defecto para ejecutar el script Python
+# Comando por defecto para ejecutar la aplicación cuando el contenedor se inicia
 CMD ["python", "jsonplaceholder.py"]
+
