@@ -1,44 +1,19 @@
-import time
 import requests
 import psycopg2
 from psycopg2 import Error
+
 from datetime import datetime
 
 # Configuración de conexión a PostgreSQL
-db_host = 'postgres'  # Nombre del servicio en docker-compose.yml
+db_host = 'postgres'
 db_port = '5432'
 db_name = 'jsonplaceholder_data'
 db_user = 'postgres'
 db_password = '1234567890'
 
-# Función para esperar la disponibilidad de PostgreSQL
-def wait_for_postgres():
-    attempts = 0
-    while attempts < 10:
-        try:
-            psycopg2.connect(
-                user=db_user,
-                password=db_password,
-                host=db_host,
-                port=db_port,
-                database=db_name
-            )
-            print("Conexión exitosa a PostgreSQL!")
-            return True
-        except psycopg2.OperationalError:
-            attempts += 1
-            print(f"Intento {attempts}: PostgreSQL no está disponible, esperando...")
-            time.sleep(5)  # Espera 5 segundos antes de intentar nuevamente
-    return False
-
 # Función para obtener datos de la API y cargar en PostgreSQL
 def extract_and_load_data(event, context):
     connection = None
-
-    # Esperar hasta que PostgreSQL esté listo
-    if not wait_for_postgres():
-        print("No se pudo conectar a PostgreSQL después de múltiples intentos. Saliendo.")
-        return
 
     try:
         connection = psycopg2.connect(
@@ -46,7 +21,8 @@ def extract_and_load_data(event, context):
             password=db_password,
             host=db_host,
             port=db_port,
-            database=db_name
+            database=db_name,
+           # client_encoding='utf-8'
         )
 
         cursor = connection.cursor()
@@ -143,3 +119,4 @@ def upsert_posts(cursor, posts_data):
 # Este fragmento permite la ejecución local
 if __name__ == "__main__":
     extract_and_load_data(None, None)
+
